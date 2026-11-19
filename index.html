@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>窑里摆摆 · Glass Kiln Planner</title>
+<link rel="icon" type="image/png" href="assets/kiln-logo.png">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="tokens.css?layout=keyboard-editing">
+<link rel="stylesheet" href="color-study.css?layout=e4-english-02">
+<script src="workspace.js" defer></script>
+<script src="clearance.js" defer></script>
+<script src="heart.js" defer></script>
+<script src="editor.js?v=stable-shelf-apply" defer></script>
+<script src="mobile.js?v=stable-shelf-apply" defer></script>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="brand-name"><h1 class="brand-rhythm"><span>窑</span><span>里</span><span>摆</span><span>摆</span></h1><p lang="en">GLASS KILN PLANNER</p></div></div>
+  <button id="about-trigger" type="button" aria-haspopup="dialog"><span>关于摆摆</span></button>
+</header>
+<main>
+  <nav id="layers" aria-label="棚板层数"></nav>
+  <div class="shelf-nav"><output id="shelf-size"></output><button id="settings" type="button">棚板设置</button></div>
+  <nav id="tools" aria-label="排版工具"></nav>
+  <section class="stage" aria-label="排版画布">
+    <div class="stage-heading"><h2 id="stage-title">第一层</h2></div>
+    <div class="canvas-viewport">
+      <svg id="canvas" tabindex="-1" aria-label="棚板与排版对象"></svg>
+      <div id="mini-properties" hidden>
+        <button id="dimension-label" class="dimension-label" type="button" aria-expanded="false" aria-controls="mini-panel"><span></span><span aria-hidden="true">⌄</span></button>
+        <section id="mini-panel" aria-label="对象属性" inert><button id="mini-close" type="button" aria-label="收起属性">×</button></section>
+      </div>
+    </div>
+    <div class="stage-footer"><span id="notice" role="status"></span><div class="zoom">
+      <div class="zoom-stepper" role="group" aria-label="画布缩放"><button id="zoom-out" type="button" aria-label="缩小">−</button><output id="zoom-label"></output><button id="zoom-in" type="button" aria-label="放大">＋</button></div><button id="fit" type="button">适配视图</button><button id="undo-action" type="button" title="撤销" aria-label="撤销" disabled><span class="desktop-undo-label">撤销</span><svg class="mobile-only" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+      <button id="delete-action" class="mobile-only" type="button" title="删除" aria-label="删除选中对象" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 10v6m4-6v6"/></svg></button>
+    </div></div>
+  </section>
+  <aside aria-labelledby="properties-title">
+    <h2 id="properties-title">对象属性</h2>
+    <div id="empty"><strong>未选择对象</strong><p>选择画布上的作品或马脚，即可编辑尺寸和位置。</p></div>
+    <form id="properties" novalidate hidden>
+      <div id="object-name"></div>
+      <div id="fields"></div>
+      <p id="clearance-warning" role="status" hidden></p>
+      <p id="field-error" role="alert"></p>
+      <div class="actions">
+        <button id="copy" type="button">复制</button><button id="remove" type="button" class="danger">删除</button>
+      </div>
+    </form>
+    <div class="keyboard"><span><kbd>⌘ Z</kbd> 撤销</span><span><kbd>Delete</kbd> 删除</span></div>
+  </aside>
+</main>
+<dialog id="shelf-dialog" aria-labelledby="shelf-title">
+  <form id="shelf-form" novalidate>
+    <h2 id="shelf-title">全局棚板尺寸</h2><p>三层共用同一形状和尺寸。</p>
+    <label class="shelf-shape">棚板形状
+      <select id="shelf-shape"><option value="rect">矩形棚板</option><option value="circle">圆形棚板</option></select>
+    </label>
+    <div class="shelf-fields" id="rect-dimensions"><label>长度 (cm)<input id="shelf-width" type="number" inputmode="decimal" min="0.1" step="0.1" required></label><label>宽度 (cm)<input id="shelf-height" type="number" inputmode="decimal" min="0.1" step="0.1" required></label></div>
+    <label id="circle-dimensions" class="shelf-shape" hidden>直径 (cm)<input id="shelf-diameter" type="number" inputmode="decimal" min="0.1" step="0.1" required></label>
+    <div class="shelf-fields">
+      <label>作品间距 (cm)<input id="piece-gap" type="number" inputmode="decimal" min="0" step="0.1" required></label>
+      <label>边缘间距 (cm)<input id="edge-gap" type="number" inputmode="decimal" min="0" step="0.1" required></label>
+    </div>
+    <p id="clearance-setting-warning" role="status" hidden></p>
+    <p id="shelf-error" role="alert"></p>
+    <div class="actions"><button id="cancel-settings" type="button">取消</button><button type="submit" class="primary">应用到三层</button></div>
+  </form>
+</dialog>
+<dialog id="about-dialog" aria-labelledby="about-title">
+  <div class="about-heading">
+    <h2 id="about-title">关于摆摆</h2>
+    <button id="about-close" type="button" aria-label="关闭关于摆摆" autofocus>×</button>
+  </div>
+  <article class="about-content" tabindex="0" aria-label="关于摆摆正文">
+    <h3>为什么做这个工具？</h3>
+    <p>接触热熔玻璃之后，我决定买一台自己的电窑。</p>
+    <p>买之前纠结了很久。不同型号的窑，烧制面积可能只差几厘米，价格、体积和用电要求却都不太一样。到底多大的窑才够用？当时其实很难判断。</p>
+    <p>最后选了一台小窑。用起来之后发现，嗯，果然还是买小了。</p>
+    <p>不过，既然已经买了，也不妨换个思路。小窑有小窑的用法，空间有限，就更需要提前规划。</p>
+    <p>比如，同样一块棚板，能放下几个作品？形状不同，怎么排列更合理？如果换大一点的窑，实际又能多放多少？</p>
+    <p>比起做好作品后才发现放不进去，我更希望能在设计阶段就对尺寸和空间有个直观的判断。</p>
+    <p>于是，我和 AI一起做了这个小工具，叫作「窑里摆摆」。</p>
+    <p>它不复杂，就是想让玻璃作品在真正入窑之前，先在屏幕上摆一摆。</p>
+    <h3>怎么使用？</h3>
+    <h4>01 / 设置棚板</h4>
+    <p>选择方形或圆形棚板，输入实际尺寸。工具支持三层棚板，可以分别安排每一层的作品。</p>
+    <h4>02 / 添加作品</h4>
+    <p>从左侧选择形状，添加到画布。拖动调整位置，也可以修改尺寸、旋转角度或复制作品。</p>
+    <h4>03 / 检查间距</h4>
+    <p>画布会提示作品之间的碰撞和越界情况。默认按照玻璃距离棚板边缘 1 cm、玻璃之间及玻璃与马脚之间 0.5 cm 的间距进行检查。</p>
+    <h4>04 / 随时调整</h4>
+    <p>在画布空白处拖动鼠标，可以框选多个对象。按 Delete 删除选中对象，Command/Ctrl + Z 撤销操作。</p>
+    <h3>一点说明</h3>
+    <p>「窑里摆摆」主要用于辅助尺寸规划和空间排布，并不能代替实际的烧制经验。</p>
+    <p>不同玻璃材料、烧制工艺和窑炉条件，对作品间距的要求可能不同。工具中的默认数值只是排版参考，实际操作还是要根据具体情况判断。</p>
+    <p>这个工具最初只是为了解决我自己的小窑难题。如果它也能帮到正在做玻璃的你，那就更好了。</p>
+    <p class="about-signature">— Li的玻璃杂记</p>
+  </article>
+</dialog>
+</body>
+</html>
